@@ -1,20 +1,38 @@
 require('dotenv').config();
 const { Router } = require('express');
 // Importar todos los routers;
-// Ejemplo: const authRouter = require('./auth.js');
+
 const axios = require("axios")
 const {Formulario} = require('../db')
 
 const router = Router();
 
 // Configurar los routers
-// Ejemplo: router.use('/auth', authRouter);
+
 
 const getInfo = async () => {
     var nada =await Formulario.findAll()
 
     return nada
 }
+
+const getInfoDni = async () => {
+    const registros = await Formulario.findAll({
+      attributes: ['dni']
+    });
+    return registros.map(registro => registro.dni);
+  }
+
+  router.get('/documentos', async (req, res) => {
+    try {
+      const dnise = await getInfoDni();
+      console.log(dnise);
+      res.status(200).send(dnise);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error al obtener DNIs');
+    }
+  });
 
 router.get('/formularios', async (req,res) => {
     let infoTotal = await getInfo()
@@ -39,12 +57,6 @@ router.post('/formularios', async (req,res) => {
             dni,
             consulta
         })
-        // const newRegistro = await Formulario.create({ name });
-        // await newRegistro.createLastName({ lastName });
-        // await newRegistro.createLastName({ email });
-        // await newRegistro.createDni({ dni });
-        // await newRegistro.createLastName({ consulta });
-
         res.status(201).send('Registro creado con éxito');
     }catch (error) {
         console.error(error);

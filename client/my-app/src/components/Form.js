@@ -140,7 +140,7 @@ export default function Form() {
     !errors.name && !errors.lastName&&!errors.email && !errors.dni&&!errors.consulta) {
       desactivado = false
     }
-  console.log(input)
+
   return (
     <View style={styles.container}>
         <View style={styles.containerText}>
