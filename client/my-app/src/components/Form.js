@@ -95,7 +95,7 @@ export default function Form() {
   const handleSubmit = () => {
     axios.post('http://localhost:3001/formularios', input)
       .then(response => {
-        Alert.alert("El mensaje se ha enviado correctamente!")
+        Alert.alert("El mensaje se ha enviado con éxito!")
         setInput({
           name:"",
           lastName:"",
