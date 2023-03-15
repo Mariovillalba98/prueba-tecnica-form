@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View,TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useState } from "react";
+import axios from 'axios'
+
 function validate(input){
   let errors = {}
   // const emailRegEx = /\S+@\S+\.\S+/
@@ -65,26 +67,80 @@ export default function Form() {
     }))
 }
 
+// function handleChange(name, value) {
+//   setInput((prevInput) => ({
+//     ...prevInput,
+//     [name]: value,
+//   }));
+//   setErrors(validate({
+//     ...input,
+//     [name]: value,
+//   }));
+// }
+
+
+  // const handleSubmit = () => {
+
+  //   Alert.alert("El mensaje se ha enviado correctamente!")
+  //   setInput({
+  //     name:"",
+  //     lastName:"",
+  //     email:"",
+  //     dni:"",
+  //     consulta:""
+  // })
+
+  // }
 
   const handleSubmit = () => {
-
-    Alert.alert("El mensaje se ha enviado correctamente!")
-    setInput({
-      name:"",
-      lastName:"",
-      email:"",
-      dni:"",
-      consulta:""
-  })
-
+    axios.post('http://localhost:3001/formularios', input)
+      .then(response => {
+        Alert.alert("El mensaje se ha enviado correctamente!")
+        setInput({
+          name:"",
+          lastName:"",
+          email:"",
+          dni:"",
+          consulta:""
+        })
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
+
+  // const handleSubmit = () => {
+  //   const data = JSON.stringify(input);
+  //   fetch('http://localhost:3001/formularios/', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: data
+  //   })
+  //   .then(response => {
+  //     if (response.ok) {
+  //       Alert.alert("El mensaje se ha enviado correctamente!")
+  //       setInput({
+  //         name:"",
+  //         lastName:"",
+  //         email:"",
+  //         dni:"",
+  //         consulta:""
+  //       });
+  //     } else {
+  //       throw new Error('Error en la solicitud POST');
+  //     }
+  //   })
+  //   .catch(error => console.error(error));
+  // }
+  
 
   if (input.name && input.lastName&&input.email && input.dni&&input.consulta&&
     !errors.name && !errors.lastName&&!errors.email && !errors.dni&&!errors.consulta) {
       desactivado = false
     }
-
-
+  console.log(input)
   return (
     <View style={styles.container}>
         <View style={styles.containerText}>
@@ -168,23 +224,25 @@ const styles = StyleSheet.create({
 
   containerText: {
     backgroundColor: '#ff3899',
-    height:120
+    height:"12%"
     
   },
 
   title:{
-    fontSize:35,
+    fontSize:25,
     color:"white",
     paddingLeft:15,
-    marginTop:50,
-    fontWeight:"bold"
+    marginTop:"12%",
+    fontWeight:"bold",
+
     
   },
 
   inputContainers: {
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 50,
+    marginBottom:"30%",
+
   },
 
   input: {
@@ -193,7 +251,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "80%",
     backgroundColor: "rgba(255,255,255,0.5)",
-    height: 70,
+    height: "10%",
     color: "black",
     paddingHorizontal: 8,
     paddingLeft: 20,
@@ -207,7 +265,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: "80%",
     backgroundColor: "rgba(255,255,255,0.5)",
-    height: 120,
+    height: "18%",
     color: "black",
     paddingBottom:50,
     paddingHorizontal: 8,
@@ -257,6 +315,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff3899",
     borderRadius: 40,
     height: 65,
+    marginBottom:"100%"
   },
   buttonDesactivado: {
     width: "100%",
@@ -265,6 +324,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#cecece",
     borderRadius: 40,
     height: 65,
+    marginBottom:"100%"
   },
   error:{
     color:"#ff3899",
