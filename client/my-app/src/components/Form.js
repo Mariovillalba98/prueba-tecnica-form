@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View,TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useState } from "react";
-import axios from 'axios'
+import axios from 'axios';
 
 function validate(input){
   let errors = {}
@@ -93,7 +93,7 @@ export default function Form() {
   // }
 
   const handleSubmit = () => {
-    axios.post('http://localhost:3001/formularios', input)
+    axios.post('/formularios', input)
       .then(response => {
         Alert.alert("El mensaje se ha enviado con éxito!")
         setInput({
