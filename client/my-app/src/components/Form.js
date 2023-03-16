@@ -5,7 +5,6 @@ import axios from 'axios';
 
 function validate(input){
   let errors = {}
-  // const emailRegEx = /\S+@\S+\.\S+/
   const emailValidation = /^\w+([.-_+]?\w+)*@\w+([.-]?\w+)*(\.\w{2,10})+$/
   if(!input.name){
       errors.name = "* El campo nombre es requerido"
@@ -54,9 +53,21 @@ export default function Form() {
   consulta:""
 
   })
-  
 
-  function handleChange(name, value){
+  async function checkDni(dni) {
+    try {
+      const response = await axios.get('/documentos');
+      const dnis = response.data.map(documento => documento);
+      //console.log(dnis) //consologuea los dni que hay actualmente en la base de datos
+      return !dnis.includes(dni);
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
+
+function handleChange(name, value){
     setInput({
         ...input,
         [name] : value
@@ -65,76 +76,37 @@ export default function Form() {
         ...input,
         [name]: value
     }))
+    if (name === "dni" && value !== "") { // si el campo del DNI se actualiza con un valor no vacío
+     // console.log(value)
+      checkDni(value); // llamamos a checkDni() con el nuevo valor de DNI para actualizar la variable isDniValid
+    }
 }
+  
 
-// function handleChange(name, value) {
-//   setInput((prevInput) => ({
-//     ...prevInput,
-//     [name]: value,
-//   }));
-//   setErrors(validate({
-//     ...input,
-//     [name]: value,
-//   }));
-// }
-
-
-  // const handleSubmit = () => {
-
-  //   Alert.alert("El mensaje se ha enviado correctamente!")
-  //   setInput({
-  //     name:"",
-  //     lastName:"",
-  //     email:"",
-  //     dni:"",
-  //     consulta:""
-  // })
-
-  // }
-
-  const handleSubmit = () => {
-    axios.post('/formularios', input)
-      .then(response => {
-        Alert.alert("El mensaje se ha enviado con éxito!")
-        setInput({
-          name:"",
-          lastName:"",
-          email:"",
-          dni:"",
-          consulta:""
-        })
-      })
-      .catch(error => {
-        console.log(error);
-      });
+async function handleSubmit() {
+  const isDniValid = await checkDni(input.dni);
+  if (!isDniValid) {
+    setErrors({
+      ...errors,
+      dni: "El DNI ingresado ya existe"
+    });
+    return;
   }
 
-  // const handleSubmit = () => {
-  //   const data = JSON.stringify(input);
-  //   fetch('http://localhost:3001/formularios/', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     },
-  //     body: data
-  //   })
-  //   .then(response => {
-  //     if (response.ok) {
-  //       Alert.alert("El mensaje se ha enviado correctamente!")
-  //       setInput({
-  //         name:"",
-  //         lastName:"",
-  //         email:"",
-  //         dni:"",
-  //         consulta:""
-  //       });
-  //     } else {
-  //       throw new Error('Error en la solicitud POST');
-  //     }
-  //   })
-  //   .catch(error => console.error(error));
-  // }
-  
+  const response = await axios.post('/formularios', input);
+  if (response.status === 201) {
+    Alert.alert("El mensaje se ha enviado con éxito!");
+    setInput({
+      name:"",
+      lastName:"",
+      email:"",
+      dni:"",
+      consulta:""
+    });
+  } else {
+    console.log(response.data);
+  }
+}
 
   if (input.name && input.lastName&&input.email && input.dni&&input.consulta&&
     !errors.name && !errors.lastName&&!errors.email && !errors.dni&&!errors.consulta) {
@@ -174,7 +146,7 @@ export default function Form() {
             <TextInput 
               name="dni" 
               value={input.dni.toString()} 
-              onChange={(value) => handleChange("dni", value.nativeEvent.text)}
+              onChange={(value) => handleChange("dni", value.nativeEvent.text,checkDni(input.dni))}
               keyboardType="numeric" placeholder="Ingrese su dni" style={styles.input} />
             {errors.dni && <Text style={styles.error}>{errors.dni}</Text>}
 
@@ -188,6 +160,7 @@ export default function Form() {
               style={styles.inputConsulta} />
             {errors.consulta && <Text style={styles.error}>{errors.consulta}</Text>}
           </View>
+
           <View style={styles.viewContainerEnviar}>
           <TouchableOpacity
             onPress={handleSubmit}
@@ -216,6 +189,11 @@ export default function Form() {
 }
 
 const styles = StyleSheet.create({
+  container1: {
+  height:"100%"
+    
+  },
+
   container: {
     flex: 1,
     backgroundColor: '#ddd',
@@ -224,7 +202,8 @@ const styles = StyleSheet.create({
 
   containerText: {
     backgroundColor: '#ff3899',
-    height:"12%"
+    height:"12%",
+ 
     
   },
 
@@ -252,7 +231,7 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "rgba(255,255,255,0.5)",
     height: "10%",
-    color: "black",
+    color: "#000",
     paddingHorizontal: 8,
     paddingLeft: 20,
     borderBottomLeftRadius:20,
@@ -266,7 +245,7 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "rgba(255,255,255,0.5)",
     height: "18%",
-    color: "black",
+    color: "#000",
     paddingBottom:50,
     paddingHorizontal: 8,
     paddingLeft: 20,
@@ -329,7 +308,34 @@ const styles = StyleSheet.create({
   error:{
     color:"#ff3899",
     fontSize:12,
-    
+  
+  },
 
-  }
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalButton: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 10,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
